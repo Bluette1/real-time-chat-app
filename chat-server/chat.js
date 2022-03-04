@@ -1,4 +1,41 @@
 const uuidv4 = require('uuid').v4;
+const OktaJwtVerifier = require('@okta/jwt-verifier');
+const okta = require('@okta/okta-sdk-nodejs');
+
+const jwtVerifier = new OktaJwtVerifier({
+  clientId: '0oa41w0zpxqQQwMoV5d7',
+  issuer: 'https://dev-64077594.okta.com/oauth2/default',
+});
+
+const oktaClient = new okta.Client({
+  orgUrl: 'https://dev-64077594.okta.com',
+  token: '00ZEJ1qbKcgtjnpnfs_mPRjQqGqVNcIONScxkk9aP3',
+});
+
+async function authHandler(socket, next) {
+  const {token = null} = socket.handshake.query || {};
+  if (token) {
+    try {
+      const [authType, tokenValue] = token.trim().split(' ');
+      if (authType !== 'Bearer') {
+        throw new Error('Expected a Bearer token');
+      }
+
+      const {claims: {sub}} = await jwtVerifier.verifyAccessToken(tokenValue, 'api://default');
+      const user = await oktaClient.getUser(sub);
+
+      users.set(socket, {
+        id: user.id,
+        name: [user.profile.firstName, user.profile.lastName].filter(Boolean).join(' '),
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  next();
+}
+
 
 const messages = new Set();
 const users = new Map();
@@ -57,6 +94,7 @@ class Connection {
 }
 
 function chat(io) {
+  io.use(authHandler);
   io.on('connection', (socket) => {
     new Connection(io, socket);   
   });

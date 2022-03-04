@@ -6,6 +6,8 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "@okta/jwt-verifier": "2.3.0",
+    "@okta/okta-sdk-nodejs": "6.1.0",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
     "express": "~4.16.1",
