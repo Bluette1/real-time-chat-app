@@ -9,7 +9,7 @@ const jwtVerifier = new OktaJwtVerifier({
 
 const oktaClient = new okta.Client({
   orgUrl: 'https://dev-64077594.okta.com',
-  token: '00ZEJ1qbKcgtjnpnfs_mPRjQqGqVNcIONScxkk9aP3',
+  token: process.env.OKTA_TOKEN,
 });
 
 async function authHandler(socket, next) {
